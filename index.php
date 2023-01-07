@@ -1,7 +1,5 @@
 <?php 
-//temperaturebot backend. 
-//i've tried to keep all the code vanilla and old school
-//of course in php it's all kind of bleh
+//web-based clipboard, for universal exchange between computers and other devices
 //gus mueller, January 1 2023
 //////////////////////////////////////////////////////////////
 
@@ -29,7 +27,7 @@ if($_REQUEST) {
 
 function isLoggedIn() {
   Global $conn;
-
+  $sql = "SELECT 
 
 }
  
