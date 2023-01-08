@@ -64,29 +64,16 @@ body
 	width: 20px;
 }
 
-.resultsTable th
+.loggedin  
 {
-	padding:3px;
-	border:1px solid #cccccc;
+	padding:1px;
+  font-size:9px;
 	font-weight:bold;
 	text-align:left;
 	vertical-align:top;
 	background:#f8f8f8;
 }
-.resultsTable tr:nth-child(odd)
-{
-	background:#ffffff;
-}
-
-.resultsTable tr:nth-child(even)
-{
-	background:#f8f8f8; 
-}
-
-.numericColumn {
-	text-align: right;
-}
-
+ 
 a:link {
 	color:#1C77AC;
 	text-decoration:none;

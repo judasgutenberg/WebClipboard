@@ -5,7 +5,12 @@ This is clipboard to use for transferring small amounts of data (the sort that w
 None of this code has pretenses of being any more than it is. It's very straightforward and imperative.
 Note: like all applications that store user data, this system uses cookies.
 
-To use this, you will need to run the WebClipBoard.sql file on a MySQL server you control and point at it using a config.php file in the root with this structure:
+To use this, you will need to run the WebClipBoard.sql file on a MySQL server you control.  
+
+Since there is no user admin functionality (for now) you will need to add your users from within MySQL by running this command:
+
+INSERT INTO `user`(email, password, created) VALUES ('youremail.com', 'yourpassword', '2023-01-01');
+Then you will need to point to your database in a config.php file in the root with this structure:
 
 <?php
 $servername = "localhost";

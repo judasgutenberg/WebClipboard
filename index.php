@@ -36,7 +36,7 @@ if(gvfw("mode")) {
 
  
 if($user) {
-  $out .= "YOU ARE LOGGED IN AS " . $user["email"]; 
+  $out .= "<div class='loggedin'>You are logged in as <b>" . $user["email"] . "</b></div>\n"; 
   $out .= "<div>\n";
   $out .= clipForm();
   $out .= "</div>\n";
