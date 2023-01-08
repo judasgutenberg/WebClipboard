@@ -148,7 +148,7 @@ function clips($userId) {
   $out = "";
   for($rowCount = 0; $rowCount< count($rows); $rowCount++) {
     $row = $rows[$rowCount]; 
-    $out .= "<div>\n<div>" . $row["created"] . "</div>\n<div>" . $row["clip"] . "</div></div>\n";
+    $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n<div class='postClip'>" . $row["clip"] . "</div></div>\n";
   }
   return $out;
 }
@@ -157,6 +157,7 @@ function bodyWrap($content) {
   $out = "";
   $out .= "<html>\n";
   $out .= "<head>\n";
+  $out .= "<link rel='stylesheet' href='site.css'>\n";
   $out .= "<title>Web Clipboard</title>\n";
   $out .= "</head>\n";
   $out .= "<body>\n";
