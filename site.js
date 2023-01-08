@@ -1,13 +1,18 @@
 function copy(id){
+  var href = document.getElementById("href" + id.toString());
   var contentDiv = document.getElementById("clip" + id.toString());
-  if(contentDiv) {
-    var clipContent = contentDiv.innerHTML;
+  var clipContent = "";
+  if(href) {
+    clipContent = href.innerHTML;
+  } else if(contentDiv) {
+    clipContent = contentDiv.innerHTML;
+  }
+  if(clipContent) {
     copyHack(clipContent);
     var backgroundColor = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = '#6666ee';
-    setTimeout(function () {document.body.style.backgroundColor = backgroundColor}, 400);
+    document.body.style.backgroundColor = '#ccffcc';
+    setTimeout(function () {document.body.style.backgroundColor = backgroundColor}, 200);
   }
-
 }
 
 
