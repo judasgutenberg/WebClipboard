@@ -1,15 +1,16 @@
 CREATE TABLE clipboard_item(
-clipboard_item_id INT,
-location_id INT NULL,
-value VARCHAR(255),
-created DATETIME NULL,
-created DATETIME
+clipboard_item_id INT AUTO_INCREMENT PRIMARY KEY,
+user_id INT NULL,
+clip TEXT,
+created DATETIME ,
+altered DATETIME NULL
 );
 
 
 CREATE TABLE user(
 user_id INT AUTO_INCREMENT PRIMARY KEY,
-email INT NULL,
+email VARCHAR(100) NULL,
+password VARCHAR(100) NULL,
 expired DATETIME NULL,
 created DATETIME
 );
