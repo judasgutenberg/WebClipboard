@@ -149,7 +149,16 @@ function clips($userId) {
   for($rowCount = 0; $rowCount< count($rows); $rowCount++) {
     $row = $rows[$rowCount]; 
     $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n";
-    $out .= "<div id='clip" . $row["clipboard_item_id"] . "' class='postClip'>" . $row["clip"] . "</div>\n";
+    $out .= "<div id='clip" . $row["clipboard_item_id"] . "' class='postClip'>";
+    $clip = $row["clip"];
+    $endClip = "";
+    if(beginsWith($clip, "http")) {
+      $out .= "<a href='" . $clip . "'>";
+      $endClip = "</a>";
+    }
+    $out .= $clip;
+    $out .= $endClip;
+    $out .= "</div>\n";
     $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div></div>\n";
   }
   return $out;
@@ -181,4 +190,20 @@ function gvfw($name){ //get value from wherever
     return $_REQUEST[$name];
   }
   return false;
+}
+
+function beginsWith($strIn, $what) {
+//Does $strIn begin with $what?
+	if (substr($strIn,0, strlen($what))==$what){
+		return true;
+	}
+	return false;
+}
+
+function endsWith($strIn, $what) {
+//Does $strIn end with $what?
+	if (substr($strIn, strlen($strIn)- strlen($what) , strlen($what))==$what) {
+		return true;
+	}
+	return false;
 }
