@@ -148,7 +148,9 @@ function clips($userId) {
   $out = "";
   for($rowCount = 0; $rowCount< count($rows); $rowCount++) {
     $row = $rows[$rowCount]; 
-    $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n<div class='postClip'>" . $row["clip"] . "</div></div>\n";
+    $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n";
+    $out .= "<div id='clip" . $row["clipboard_item_id"] . "' class='postClip'>" . $row["clip"] . "</div>\n";
+    $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div></div>\n";
   }
   return $out;
 }
@@ -157,6 +159,7 @@ function bodyWrap($content) {
   $out = "";
   $out .= "<html>\n";
   $out .= "<head>\n";
+  $out .= "<script src='site.js'></script>\n";
   $out .= "<link rel='stylesheet' href='site.css'>\n";
   $out .= "<title>Web Clipboard</title>\n";
   $out .= "</head>\n";
@@ -164,6 +167,12 @@ function bodyWrap($content) {
   $out .= $content;
   $out .= "</body>\n";
   $out .= "</html>\n";
+  return $out;
+}
+
+function clipTools($clipId) {
+  $out = "";
+  $out .= "<a href='javascript:copy(" . $clipId . ")'> <img src='copy.png' height='10' border='0'/></a>\n";  
   return $out;
 }
 

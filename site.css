@@ -56,6 +56,14 @@ body
  
 }
 
+.clipTools
+{
+  float: right;
+	margin-left:10px;
+	display: inline;
+	width: 20px;
+}
+
 .resultsTable th
 {
 	padding:3px;
