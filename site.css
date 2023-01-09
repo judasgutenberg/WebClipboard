@@ -63,7 +63,11 @@ body
 	display: inline;
 	width: 20px;
 }
-
+.clipFormButtons
+{
+	margin-left:10px;
+	display: inline
+}
 .loggedin  
 {
 	padding:1px;

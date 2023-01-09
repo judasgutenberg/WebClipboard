@@ -1,7 +1,9 @@
 CREATE TABLE clipboard_item(
 clipboard_item_id INT AUTO_INCREMENT PRIMARY KEY,
 user_id INT NULL,
-clip TEXT,
+clip TEXT NULL,
+file_extension VARCHAR(10) NULL,
+file_name VARCHAR(250) NULL,
 created DATETIME ,
 altered DATETIME NULL
 );

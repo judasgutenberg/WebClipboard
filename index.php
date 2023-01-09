@@ -25,7 +25,7 @@ if(gvfw("mode")) {
     loginUser();
   } else if ($mode == "Save Clip" && $user != false) {
  
-    saveClip($user["user_id"], gvfw("clip"));
+    saveClip($user["user_id"], gvfw("clip", ""));
 
     
   }
@@ -91,10 +91,13 @@ function loginForm() {
 
 function clipForm() {
   $out = "";
-  $out .= "<form method='post' name='clipForm' id='clipForm'>\n";
+  $out .= "<form method='post' name='clipForm' id='clipForm'  enctype='multipart/form-data'>\n";
   $out .= "<textarea name='clip' style='width:500px; height:100px'>\n";
   $out .= "</textarea>\n";
+  $out .= "<div class='clipFormButtons'>\n";
+  $out .= "<input type='file' id='clipfile' name='clipfile'>";
   $out .= "<input name='mode' value='Save Clip' type='submit'>\n";
+  $out .= "</div>\n";
   $out .= "</form>\n";
   return $out;
 }
@@ -131,10 +134,24 @@ function loginUser() {
 
 function saveClip($userId, $clip){
   Global $conn;
+  
+  $tempFile = $_FILES["clipfile"]["tmp_name"];
+  $extension = "";
+  $filename = "";
+  if($tempFile) {
+    $extension = pathinfo($_FILES["clipfile"]["name"], PATHINFO_EXTENSION);
+    $filename = $_FILES["clipfile"]["name"];
+  }
   $date = new DateTime("now", new DateTimeZone('America/New_York'));//obviously, you would use your timezone, not necessarily mine
   $formatedDateTime =  $date->format('Y-m-d H:i:s'); 
-  $sql = "INSERT INTO clipboard_item(user_id, clip, created) VALUES (" . $userId . ",'" .  mysqli_real_escape_string($conn, $clip) . "','" .$formatedDateTime . "')"; 
+  $sql = "INSERT INTO clipboard_item(user_id, clip, file_name, created) VALUES (" . $userId . ",'" .  mysqli_real_escape_string($conn, $clip) . "','" . mysqli_real_escape_string($conn, $filename) . "','" .$formatedDateTime . "')"; 
   $result = mysqli_query($conn, $sql);
+  $id = mysqli_insert_id($conn);
+  $targetDir = "uploads/";
+  if($filename != "") {
+    copy($tempFile, "./downloads/" . $id .  "." . $extension);
+  }
+  
 }
 
 function clips($userId) {
@@ -149,7 +166,8 @@ function clips($userId) {
   for($rowCount = 0; $rowCount< count($rows); $rowCount++) {
     $row = $rows[$rowCount]; 
     $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n";
-    $out .= "<div id='clip" . $row["clipboard_item_id"] . "' class='postClip'>";
+    $out .= "<div  class='postClip'>\n";
+    $out .= "<span id='clip" . $row["clipboard_item_id"] . "'>";
     $clip = $row["clip"];
     $endClip = "";
     if(beginsWith($clip, "http")) {
@@ -158,6 +176,14 @@ function clips($userId) {
     }
     $out .= $clip;
     $out .= $endClip;
+    $out .= "</span>";
+    if($row["file_name"] != "") {
+      $extension = pathinfo($row["file_name"], PATHINFO_EXTENSION);
+      $out .= "<a href='./downloads/" . $row["clipboard_item_id"] .  "." . $extension . "'>" . $row["file_name"] . "</a>";
+      $endClip = "</a>";
+    }
+    
+    
     $out .= "</div>\n";
     $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div></div>\n";
   }
@@ -185,11 +211,11 @@ function clipTools($clipId) {
   return $out;
 }
 
-function gvfw($name){ //get value from wherever
+function gvfw($name, $fail = false){ //get value from wherever
   if(isset($_REQUEST[$name])) {
     return $_REQUEST[$name];
   }
-  return false;
+  return $fail;
 }
 
 function beginsWith($strIn, $what) {
