@@ -28,6 +28,14 @@ if(gvfw("mode")) {
     saveClip($user["user_id"], gvfw("clip", ""));
 
     
+  } else if ($mode == "Save Clip" && $user != false) {
+  
+  
+  } else if ($mode == "download" && $user != false) {
+    $path = gvfw("path");
+    $friendly = gvfw("friendly");
+    download($path, $friendly);
+    die();
   }
  
 }
@@ -55,7 +63,7 @@ echo bodyWrap($out);
 
 if($_REQUEST) {
 	$mode = gvfw("mode");
-	$locationId = gvfw("locationId");
+ 
 	
 	
 	
@@ -184,7 +192,7 @@ function clips($userId) {
     $out .= "</span>";
     if($row["file_name"] != "") {
       $extension = pathinfo($row["file_name"], PATHINFO_EXTENSION);
-      $out .= "<a href='./downloads/" . $row["clipboard_item_id"] .  "." . $extension . "'>" . $row["file_name"] . "</a>";
+      $out .= "<a href='index.php?friendly=" . urlencode($row["file_name"]) . "&mode=download&path=" . urlencode("./downloads/" . $row["clipboard_item_id"] .  "." . $extension) . "'>" . $row["file_name"] . "</a>";
       $endClip = "</a>";
     }
     
@@ -237,4 +245,16 @@ function endsWith($strIn, $what) {
 		return true;
 	}
 	return false;
+}
+
+function download($path, $friendlyName){
+    $file = file_get_contents($path);
+    header("Cache-Control: no-cache private");
+    header("Content-Description: File Transfer");
+    header('Content-disposition: attachment; filename='.$friendlyName);
+    header("Content-Type: application/whatevs");
+    header("Content-Transfer-Encoding: binary");
+    header('Content-Length: '. strlen($file));
+    echo $file;
+    exit;
 }
