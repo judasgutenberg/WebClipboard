@@ -59,15 +59,7 @@ if($user) {
 
 echo bodyWrap($out);
 
-
-
-if($_REQUEST) {
-	$mode = gvfw("mode");
  
-	
-	
-	
-}
 
 function logIn() {
   Global $encryptionPassword;
@@ -192,13 +184,14 @@ function clips($userId) {
     $out .= "</span>";
     if($row["file_name"] != "") {
       $extension = pathinfo($row["file_name"], PATHINFO_EXTENSION);
-      $out .= "<a href='index.php?friendly=" . urlencode($row["file_name"]) . "&mode=download&path=" . urlencode("./downloads/" . $row["clipboard_item_id"] .  "." . $extension) . "'>" . $row["file_name"] . "</a>";
-      $endClip = "</a>";
+      $out .= "<div class='downloadLink'><a href='index.php?friendly=" . urlencode($row["file_name"]) . "&mode=download&path=" . urlencode("./downloads/" . $row["clipboard_item_id"] .  "." . $extension) . "'>" . $row["file_name"] . "</a>";
+      $out .= "</div>";
     }
     
     
-    $out .= "</div>\n";
+    
     $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div></div>\n";
+    $out .= "</div>\n";
   }
   return $out;
 }
