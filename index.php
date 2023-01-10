@@ -91,14 +91,18 @@ function loginForm() {
 
 function clipForm() {
   $out = "";
+  $out .= "<div>\n";
   $out .= "<form method='post' name='clipForm' id='clipForm'  enctype='multipart/form-data'>\n";
+  $out .= "<div class='clipFormButtons'>\n";
   $out .= "<textarea name='clip' style='width:500px; height:100px'>\n";
   $out .= "</textarea>\n";
+  $out .= "</div>\n";
   $out .= "<div class='clipFormButtons'>\n";
-  $out .= "<input type='file' id='clipfile' name='clipfile'>";
+  $out .= "<input type='file' id='clipfile' name='clipfile'>\n \n";
   $out .= "<input name='mode' value='Save Clip' type='submit'>\n";
   $out .= "</div>\n";
   $out .= "</form>\n";
+  $out .= "</div>\n";
   return $out;
 }
 
@@ -145,13 +149,14 @@ function saveClip($userId, $clip){
   $date = new DateTime("now", new DateTimeZone('America/New_York'));//obviously, you would use your timezone, not necessarily mine
   $formatedDateTime =  $date->format('Y-m-d H:i:s'); 
   $sql = "INSERT INTO clipboard_item(user_id, clip, file_name, created) VALUES (" . $userId . ",'" .  mysqli_real_escape_string($conn, $clip) . "','" . mysqli_real_escape_string($conn, $filename) . "','" .$formatedDateTime . "')"; 
-  $result = mysqli_query($conn, $sql);
-  $id = mysqli_insert_id($conn);
-  $targetDir = "uploads/";
-  if($filename != "") {
-    copy($tempFile, "./downloads/" . $id .  "." . $extension);
+  if($filename != "" || $clip != "") {
+    $result = mysqli_query($conn, $sql);
+    $id = mysqli_insert_id($conn);
+    $targetDir = "uploads/";
+    if($filename != "") {
+      copy($tempFile, "./downloads/" . $id .  "." . $extension);
+    }
   }
-  
 }
 
 function clips($userId) {
