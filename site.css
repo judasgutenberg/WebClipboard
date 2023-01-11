@@ -28,21 +28,24 @@ body
 .postDate
 {
 	font-size:10px;
-	margin-bottom:-3px;
+ 
 	color: #1C77AC;
 	font-weight:normal;
 	text-shadow: 2px 2px 2px #ffffff;
-	display: inline;
+	display: inline-block;
 	background-color: #eeeeee;
+ 
+	vertical-align:top;
 }
 .postClip
 {
 	font-size:14px;
-	margin-bottom:-3px;
+ 
 	margin-left:10px;
 	color: #000000;
 	font-weight:normal;
-	display: inline
+	display: inline-block;
+	width:80%;
 }
 
 .postRow
@@ -66,8 +69,9 @@ body
 {
   float: right;
 	margin-left:10px;
-	display: inline;
+  vertical-align:top;
 	width: 20px;
+	display: inline-block;
 }
 .clipFormButtons
 {

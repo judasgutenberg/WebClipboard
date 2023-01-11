@@ -171,9 +171,13 @@ function clips($userId) {
   for($rowCount = 0; $rowCount< count($rows); $rowCount++) {
     $row = $rows[$rowCount]; 
     $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n";
+    $clip = $row["clip"];
+    if($clip != "") {
+      $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div>\n";
+    }
     $out .= "<div  class='postClip'>\n";
     $out .= "<span id='clip" . $row["clipboard_item_id"] . "'>";
-    $clip = $row["clip"];
+    
     $endClip = "";
     if(beginsWith($clip, "http")) {
       $out .= "<a id='href" . $row["clipboard_item_id"] . "' href='" . $clip . "'>";
@@ -190,7 +194,7 @@ function clips($userId) {
     
     
     
-    $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div></div>\n";
+    $out .= "</div>";
     $out .= "</div>\n";
   }
   return $out;
