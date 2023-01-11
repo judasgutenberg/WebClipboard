@@ -4,7 +4,7 @@ This is a clipboard system to use for transferring small amounts of text data (t
 
 The clipboard also supports file uploads in addition to simple text and preserves the filename of the uploaded file.
 
-Currently the passwords are stored in plaintext (bad!) but I will eventually fix this.
+Currently the passwords are stored in plaintext (bad!) but I will eventually fix this when I add some user management.
 
 None of this code has pretenses of being any more than it is. It's very straightforward and imperative.
 Note: like all applications that store user data, this system uses cookies.
