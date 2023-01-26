@@ -18,6 +18,7 @@ INSERT INTO `user`(email, password, created) VALUES ('youremail.com', 'yourpassw
 Then you will need to point to your database in a config.php file in the root with this structure:
 
 <?php
+
 $servername = "localhost";
 $username = "your_username";
 $database = "your_database";
