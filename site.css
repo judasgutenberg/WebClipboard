@@ -14,7 +14,19 @@ body
 	bottom:0px;
 	right:0px;
 }
+ 
 
+.basicbutton
+{
+	display: inline;
+	background-color: #cccccc;
+	border-radius: 2px;
+	
+}
+
+.basicbutton:hover {
+	background-color: #ffffff; color: #333366;
+}
 
 .title
 {
@@ -86,12 +98,31 @@ body
 .loggedin  
 {
 	padding:1px;
-  font-size:9px;
+  	font-size:9px;
 	font-weight:bold;
 	text-align:left;
 	vertical-align:top;
 	background:#f8f8f8;
 }
+
+.genericform {
+	display: grid;
+	gap: 10px;
+	grid-template-columns: 1fr 1fr;
+}
+
+.genericformelementlabel {
+ 	text-align: right	;
+}
+.genericformelementinput {
+ 	text-align: left;
+}
+
+.genericformerror {
+	font-size: 10px;
+	color: red;
+}
+ 
  
 a:link {
 	color:#1C77AC;
