@@ -13,7 +13,7 @@ To use this, you will need to run the WebClipBoard.sql file on a MySQL server yo
 
 Create new accounts from within the system so the passwords will be encrypted correctly. Otherwise you will need to encrypt the passwords using the PHP function crypt(YOUR_PASSWORD, $encryptionPassword) and then run this as follows from within MySQL by running something like this command in MySQL:
 
-INSERT INTO `user`(email, password, created) VALUES ('youremail.com', 'your_encrypted_password', '2023-01-01');
+INSERT INTO `user`(email, password, created) VALUES ('your@email.com', 'your_encrypted_password', '2023-01-01');
 
 Then you will need to point to your database in a config.php file in the root with this structure:
 
