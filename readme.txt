@@ -4,7 +4,7 @@ This is a clipboard system to use primarily for transferring small amounts of te
 
 The clipboard also supports file uploads in addition to simple text and preserves the filename of the uploaded file.
 
-Currently the passwords are stored in plaintext (bad!) but I will eventually fix this when I add some user management and have a way to encrypt passwords on save.
+Passwords are encrypted and new accounts are easily created (no email verification!).
 
 None of this code has pretenses of being any more than it is. It's very straightforward and imperative.
 Note: like all applications that store user data, this system uses cookies.
@@ -24,3 +24,7 @@ $username = "your_username";
 $database = "your_database";
 $password = "your_password";
 $encryptionPassword = "your_cookie_encryption_password";
+
+To see this in action (and create your own clipboard using my system), go here:
+
+http://randomsprocket.com/cb/index.php
