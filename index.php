@@ -12,45 +12,55 @@ include("config.php");
 $conn = mysqli_connect($servername, $username, $password, $database);
 
 $mode = "";
-$user = login();
+$user = logIn();
 $out = "";
+$createUserErrors = NULL;
 //$formatedDateTime =  $date->format('H:i');
 
 if(gvfw("mode")) {
  
   $mode = gvfw('mode');
- 
-  if ($mode == "login") {
- 
-    loginUser();
-  } else if ($mode == "Save Clip" && $user != false) {
- 
-    saveClip($user["user_id"], gvfw("clip", ""));
-
-    
-  } else if ($mode == "Save Clip" && $user != false) {
-  
-  
-  } else if ($mode == "download" && $user != false) {
-    $path = gvfw("path");
-    $friendly = gvfw("friendly");
-    download($path, $friendly);
-    die();
+  if ($mode == "logout") {
+  	logOut();
+	header("Location: ?mode=login");
+	die();
   }
- 
+  
+	
+	if ($mode == "login") {
+		loginUser();
+	} else if (strtolower($mode) == "create user") {
+		$createUserErrors = createUser();
+	} else if (strtolower($mode) == "save clip" && $user != false) {
+	
+		saveClip($user["user_id"], gvfw("clip", ""));
+	
+	
+	} else if ($mode == "Save Clip" && $user != false) {
+	
+	
+	} else if ($mode == "download" && $user != false) {
+		$path = gvfw("path");
+		$friendly = gvfw("friendly");
+		download($path, $friendly);
+		die();
+	}
 }
 
  
 
  
 if($user) {
-  $out .= "<div class='loggedin'>You are logged in as <b>" . $user["email"] . "</b></div>\n"; 
-  $out .= "<div>\n";
-  $out .= clipForm();
-  $out .= "</div>\n";
-  $out .= "<div>\n";
-  $out .= clips($user["user_id"]);
-  $out .= "</div>\n";
+	$out .= "<div class='loggedin'>You are logged in as <b>" . $user["email"] . "</b> <div class='basicbutton'><a href=\"?mode=logout\">logout</a></div></div>\n"; 
+	$out .= "<div>\n";
+	$out .= clipForm();
+	$out .= "</div>\n";
+	$out .= "<div>\n";
+	$out .= clips($user["user_id"]);
+	$out .= "</div>\n";
+} else if ($mode == "startnewuser" || !is_null($createUserErrors)) {
+	$out .= "<div class='loggedin'>You are logged out. <div class='basicbutton'><a href=\"?mode=login\">log in</a></div></div>\n"; 
+	$out .= newUserForm($createUserErrors);
 } else {
 
   $out .= loginForm();
@@ -79,14 +89,76 @@ function logIn() {
   }
 }
  
+function logOut() {
+
+  $cookieName = "webClipBoard";
+  setcookie($cookieName, "");
+  return false;
+}
+ 
 function loginForm() {
   $out = "";
   $out .= "<form method='post' name='loginform' id='loginform'>\n";
-  $out .= " email: <input name='email' type='text'>\n";
+  $out .= "<strong>Login here:</strong>  email: <input name='email' type='text'>\n";
   $out .= "password: <input name='password' type='password'>\n";
   $out .= "<input name='mode' value='login' type='submit'>\n";
+  $out .= "<div> or  <div class='basicbutton'><a href=\"?mode=startnewuser\">Create Account</a></div>\n";
   $out .= "</form>\n";
   return $out;
+}
+
+
+ 
+
+function newUserForm($error = NULL) {
+	$formData = array(
+		[
+	    'label' => 'email',
+		'name' => 'email',
+	    'value' => gvfa("email", $_POST), 
+		'error' => gvfa('email', $error)
+	  ],
+		[
+	    'title' => 'password',
+		'name' => 'password',
+		'type' => 'password',
+	    'value' => gvfa("password", $_POST), 
+		'error' => gvfa('error', $error)
+	   ],
+		[
+	    'label' => 'password (again)',
+		'name' => 'password2',
+		'type' => 'password',
+	    'value' => gvfa("password2", $_POST),
+		'error' => gvfa('password2', $error)
+	   ]
+	);
+  return genericForm($formData, "create user");
+}
+
+
+function genericForm($data, $submitLabel) { //$data also includes any errors
+	$out = "";
+	$out .= "<form method='post' name='genericform' id='genericform'>\n";
+	$out .= "<div class='genericform'>\n";
+	foreach($data as &$datum) {
+		$label = gvfa("label", $datum);
+		$value = gvfa("value", $datum); 
+		$name = gvfa("name", $datum); 
+		$type =gvfa("type", $datum); 
+		$error = gvfa("error", $datum); 
+		if($label == "") {
+			$label = $name;
+		}
+		if($type == "") {
+			$type = "text";
+		}
+		$out .= "<div class='genericformelementlabel'>" . $label . ": </div><div class='genericformelementinput'><div class='genericformerror'>" . $error . "</div><input name='" . $name . "' value=\"" . addslashes($value) . "\" type='" . $type . "'/></div>\n";
+	}
+	$out .= "<div class='genericformelementlabel'><input name='mode' value='" .  $submitLabel. "' type='submit'/></div>\n";
+	$out .= "</div>\n";
+	$out .= "</form>\n";
+	return $out;
 }
 
 function clipForm() {
@@ -116,24 +188,66 @@ function getUser($email) {
   return $row;
 }
 
-function loginUser() {
+function loginUser($source = NULL) {
   Global $conn;
   Global $encryptionPassword;
+  if($source == NULL) {
+  	$source = $_REQUEST;
+  }
   $cookieName = "webClipBoard";
-  $email = gvfw("email");
-  $password = gvfw("password");
-  $sql = "SELECT `email` FROM `user` WHERE email = '" . mysqli_real_escape_string($conn, $email) . "' AND password = '" . mysqli_real_escape_string($conn, $password) . "'";
+  $email = gvfa("email", $source);
+  $passwordIn = gvfa("password", $source);
+  $sql = "SELECT `email`, `password` FROM `user` WHERE email = '" . mysqli_real_escape_string($conn, $email) . "' ";
   //echo($sql);
   $result = mysqli_query($conn, $sql);
   $row = $result->fetch_assoc();
-  if($row  && $row["email"]) {
+  if($row  && $row["email"] && $row["password"]) {
     $email = $row["email"];
-    setcookie($cookieName, openssl_encrypt($email, "AES-128-CTR", $encryptionPassword), time() + (30 * 365 * 24 * 60 * 60));
-    header('Location: '.$_SERVER['PHP_SELF']);
-    //echo "LOGGED IN!!!" . $email ;
-    die;
+	$passwordHashed = $row["password"];
+	//for debugging:
+	//echo crypt($passwordIn, $encryptionPassword);
+	if (password_verify($passwordIn, $passwordHashed)) {
+		//echo "DDDADA";
+	    setcookie($cookieName, openssl_encrypt($email, "AES-128-CTR", $encryptionPassword), time() + (30 * 365 * 24 * 60 * 60));
+	    header('Location: '.$_SERVER['PHP_SELF']);
+	    //echo "LOGGED IN!!!" . $email ;
+	    die;
+	}
   }
   return false;
+}
+
+
+function createUser(){
+  Global $conn;
+  Global $encryptionPassword;
+  $errors = NULL;
+  $date = new DateTime("now", new DateTimeZone('America/New_York'));//obviously, you would use your timezone, not necessarily mine
+  $formatedDateTime =  $date->format('Y-m-d H:i:s'); 
+  $password = gvfa("password", $_POST);
+  $password2 = gvfa("password2", $_POST);
+  $email = gvfa("email", $_POST);
+  if($password != $password2 || $password == "") {
+  	$errors["password2"] = "Passwords must be identical and have a value";
+  }
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+	$errors["email"] = "Invalid email format";
+  }
+  if(is_null($errors)) {
+  	$encryptedPassword =  crypt($password, $encryptionPassword);
+  	$sql = "INSERT INTO user(email, password, created) VALUES ('" . $email . "','" .  mysqli_real_escape_string($conn, $encryptedPassword) . "','" .$formatedDateTime . "')"; 
+	//echo $sql;
+	$result = mysqli_query($conn, $sql);
+    $id = mysqli_insert_id($conn);
+	//die("*" . $id);
+  	loginUser($_POST);
+	header("Location: ?");
+  } else {
+  	return $errors;
+  
+  }
+  return false;
+ 
 }
 
 function saveClip($userId, $clip){
@@ -222,8 +336,12 @@ function clipTools($clipId) {
 }
 
 function gvfw($name, $fail = false){ //get value from wherever
-  if(isset($_REQUEST[$name])) {
-    return $_REQUEST[$name];
+  return gvfa($name, $_REQUEST);
+}
+
+function gvfa($name, $source, $fail = false){ //get value from associative
+  if(isset($source[$name])) {
+    return $source[$name];
   }
   return $fail;
 }
