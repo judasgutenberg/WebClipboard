@@ -11,9 +11,9 @@ Note: like all applications that store user data, this system uses cookies.
 
 To use this, you will need to run the WebClipBoard.sql file on a MySQL server you control.  
 
-Since there is no user admin functionality (for now), you will need to add your users from within MySQL by running something like this command in MySQL:
+Create new accounts from within the system so the passwords will be encrypted correctly. Otherwise you will need to encrypt the passwords using the PHP function crypt(YOUR_PASSWORD, $encryptionPassword) and then run this as follows from within MySQL by running something like this command in MySQL:
 
-INSERT INTO `user`(email, password, created) VALUES ('youremail.com', 'yourpassword', '2023-01-01');
+INSERT INTO `user`(email, password, created) VALUES ('youremail.com', 'your_encrypted_password', '2023-01-01');
 
 Then you will need to point to your database in a config.php file in the root with this structure:
 
