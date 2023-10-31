@@ -25,6 +25,6 @@ $database = "your_database";
 $password = "your_password";
 $encryptionPassword = "your_cookie_encryption_password";
 
-To see this in action (and create your own clipboard using my system), go here:
+To see this in action (and create your own clipboard hosted on my server until I stop paying the bills), go here:
 
 http://randomsprocket.com/cb/index.php
