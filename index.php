@@ -73,12 +73,12 @@ echo bodyWrap($out);
 
 function logIn() {
   Global $encryptionPassword;
-  $cookieName = "webClipBoard";
-  if(!isset($_COOKIE[$cookieName])) {
+  Global $cookiename;
+  if(!isset($_COOKIE[$cookiename])) {
     return false;
   } else {
   
-   $cookieValue = $_COOKIE[$cookieName];
+   $cookieValue = $_COOKIE[$cookiename];
    $email = openssl_decrypt($cookieValue, "AES-128-CTR", $encryptionPassword);
    if(strpos($email, "@") > 0){
       return getUser($email);
@@ -90,10 +90,9 @@ function logIn() {
 }
  
 function logOut() {
-
-  $cookieName = "webClipBoard";
-  setcookie($cookieName, "");
-  return false;
+	Global $cookiename;
+	setcookie($cookiename, "");
+	return false;
 }
  
 function loginForm() {
@@ -191,10 +190,10 @@ function getUser($email) {
 function loginUser($source = NULL) {
   Global $conn;
   Global $encryptionPassword;
+  Global $cookiename;
   if($source == NULL) {
   	$source = $_REQUEST;
   }
-  $cookieName = "webClipBoard";
   $email = gvfa("email", $source);
   $passwordIn = gvfa("password", $source);
   $sql = "SELECT `email`, `password` FROM `user` WHERE email = '" . mysqli_real_escape_string($conn, $email) . "' ";
@@ -208,7 +207,7 @@ function loginUser($source = NULL) {
 	//echo crypt($passwordIn, $encryptionPassword);
 	if (password_verify($passwordIn, $passwordHashed)) {
 		//echo "DDDADA";
-	    setcookie($cookieName, openssl_encrypt($email, "AES-128-CTR", $encryptionPassword), time() + (30 * 365 * 24 * 60 * 60));
+	    setcookie($cookiename, openssl_encrypt($email, "AES-128-CTR", $encryptionPassword), time() + (30 * 365 * 24 * 60 * 60));
 	    header('Location: '.$_SERVER['PHP_SELF']);
 	    //echo "LOGGED IN!!!" . $email ;
 	    die;
