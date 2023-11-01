@@ -277,38 +277,42 @@ function clips($userId) {
   Global $encryptionPassword;
  
   $sql = "SELECT * FROM `clipboard_item` WHERE user_id = " . $userId . " ORDER BY created DESC LIMIT 0,100";
-  //echo($sql);
-  $result = mysqli_query($conn, $sql);
-  $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
   $out = "";
-  for($rowCount = 0; $rowCount< count($rows); $rowCount++) {
-    $row = $rows[$rowCount]; 
-    $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n";
-    $clip = $row["clip"];
-    if($clip != "") {
-      $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div>\n";
-    }
-    $out .= "<div  class='postClip'>\n";
-    $out .= "<span id='clip" . $row["clipboard_item_id"] . "'>";
-    
-    $endClip = "";
-    if(beginsWith($clip, "http")) {
-      $out .= "<a id='href" . $row["clipboard_item_id"] . "' href='" . $clip . "'>";
-      $endClip = "</a>";
-    }
-    $out .= $clip;
-    $out .= $endClip;
-    $out .= "</span>";
-    if($row["file_name"] != "") {
-      $extension = pathinfo($row["file_name"], PATHINFO_EXTENSION);
-      $out .= "<div class='downloadLink'><a href='index.php?friendly=" . urlencode($row["file_name"]) . "&mode=download&path=" . urlencode("./downloads/" . $row["clipboard_item_id"] .  "." . $extension) . "'>" . $row["file_name"] . "</a>";
-      $out .= "</div>";
-    }
-    
-    
-    
-    $out .= "</div>";
-    $out .= "</div>\n";
+  $result = mysqli_query($conn, $sql);
+  if($result) {
+	  $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+	  
+	  if($rows) {
+		  for($rowCount = 0; $rowCount< count($rows); $rowCount++) {
+		    $row = $rows[$rowCount]; 
+		    $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n";
+		    $clip = $row["clip"];
+		    if($clip != "") {
+		      $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div>\n";
+		    }
+		    $out .= "<div  class='postClip'>\n";
+		    $out .= "<span id='clip" . $row["clipboard_item_id"] . "'>";
+		    
+		    $endClip = "";
+		    if(beginsWith($clip, "http")) {
+		      $out .= "<a id='href" . $row["clipboard_item_id"] . "' href='" . $clip . "'>";
+		      $endClip = "</a>";
+		    }
+		    $out .= $clip;
+		    $out .= $endClip;
+		    $out .= "</span>";
+		    if($row["file_name"] != "") {
+		      $extension = pathinfo($row["file_name"], PATHINFO_EXTENSION);
+		      $out .= "<div class='downloadLink'><a href='index.php?friendly=" . urlencode($row["file_name"]) . "&mode=download&path=" . urlencode("./downloads/" . $row["clipboard_item_id"] .  "." . $extension) . "'>" . $row["file_name"] . "</a>";
+		      $out .= "</div>";
+		    }
+		    
+		    
+		    
+		    $out .= "</div>";
+		    $out .= "</div>\n";
+		  }
+	  }
   }
   return $out;
 }
