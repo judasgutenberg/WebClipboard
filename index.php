@@ -341,7 +341,8 @@ function clipTools($clipId) {
 }
 
 function gvfw($name, $fail = false){ //get value from wherever
-  return gvfa($name, $_REQUEST);
+  $out = gvfa($name, $_REQUEST, $fail);
+  return $out;
 }
 
 function gvfa($name, $source, $fail = false){ //get value from associative
