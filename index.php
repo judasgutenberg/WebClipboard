@@ -62,7 +62,9 @@ if($user) {
 	$out .= "<div class='loggedin'>You are logged out. <div class='basicbutton'><a href=\"?mode=login\">log in</a></div></div>\n"; 
 	$out .= newUserForm($createUserErrors);
 } else {
-
+  if(gvfa("password", $_POST) != "") {
+    $out .= "<div class='genericformerror'>The credentials you entered have failed.</div>";
+   }
   $out .= loginForm();
 
 }
