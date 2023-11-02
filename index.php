@@ -239,8 +239,7 @@ function createUser(){
   	$sql = "INSERT INTO user(email, password, created) VALUES ('" . $email . "','" .  mysqli_real_escape_string($conn, $encryptedPassword) . "','" .$formatedDateTime . "')"; 
 	//echo $sql;
 	$result = mysqli_query($conn, $sql);
-    $id = mysqli_insert_id($conn);
-	//die("*" . $id);
+    	$id = mysqli_insert_id($conn);
   	loginUser($_POST);
 	header("Location: ?");
   } else {
@@ -353,7 +352,7 @@ function gvfa($name, $source, $fail = false){ //get value from associative
 }
 
 function beginsWith($strIn, $what) {
-//Does $strIn begin with $what?
+	//Does $strIn begin with $what?
 	if (substr($strIn,0, strlen($what))==$what){
 		return true;
 	}
@@ -361,7 +360,7 @@ function beginsWith($strIn, $what) {
 }
 
 function endsWith($strIn, $what) {
-//Does $strIn end with $what?
+	//Does $strIn end with $what?
 	if (substr($strIn, strlen($strIn)- strlen($what) , strlen($what))==$what) {
 		return true;
 	}
