@@ -29,3 +29,5 @@ $cookiename = "your_cookie_name";
 To see this in action (and create your own clipboard hosted on my server until I stop paying the bills), go here:
 
 http://randomsprocket.com/cb/index.php
+
+If you do this, keep in mind that I can read your clipboard's contents, though your password is encrypted beyond my ability to recover it.
