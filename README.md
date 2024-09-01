@@ -16,7 +16,7 @@ Create new accounts from within the system so the passwords will be encrypted co
 INSERT INTO `user`(email, password, created) VALUES ('your@email.com', 'your_encrypted_password', '2023-01-01');
 
 Then you will need to point to your database in a config.php file in the root with this structure:
-
+<code>
 &lt;?php
 
 $servername = "localhost";
@@ -25,8 +25,9 @@ $database = "your_database";
 $password = "your_password";
 $encryptionPassword = "your_cookie_encryption_password";
 $cookiename = "your_cookie_name";
-&gt;
 
+?&gt;
+</code>
 To see this in action (and create your own clipboard hosted on my server until I stop paying the bills), go here:
 
 http://randomsprocket.com/cb/index.php
