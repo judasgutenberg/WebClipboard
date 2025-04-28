@@ -4,7 +4,7 @@ This is a clipboard system to use primarily for transferring small amounts of te
 
 The clipboard also supports file uploads in addition to simple text and preserves the filename of the uploaded file.
 
-Passwords are encrypted and new accounts are easily created (there is no email verification!).
+Passwords are encrypted and new accounts are easily created (there is no email verification or easy UI to change your password!).
 
 None of this code has pretenses of being any more than it is. It's very straightforward and imperative.
 Note: like all applications that store user data, this system uses cookies.
