@@ -6,9 +6,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
 include("config.php");
-
 $conn = mysqli_connect($servername, $username, $password, $database);
 
 $mode = "";
@@ -16,17 +14,13 @@ $user = logIn();
 $out = "";
 $createUserErrors = NULL;
 //$formatedDateTime =  $date->format('H:i');
-
 if(gvfw("mode")) {
- 
   $mode = gvfw('mode');
-  if ($mode == "logout") {
-  	logOut();
-	header("Location: ?mode=login");
-	die();
-  }
-  
-	
+	if ($mode == "logout") {
+		logOut();
+		header("Location: ?mode=login");
+		die();
+	}
 	if ($mode == "login") {
 		loginUser();
 	} else if (strtolower($mode) == "create user") {
@@ -47,9 +41,6 @@ if(gvfw("mode")) {
 	}
 }
 
- 
-
- 
 if($user) {
 	$out .= "<div class='loggedin'>You are logged in as <b>" . $user["email"] . "</b> <div class='basicbutton'><a href=\"?mode=logout\">logout</a></div></div>\n"; 
 	$out .= "<div>\n";
@@ -70,8 +61,6 @@ if($user) {
 }
 
 echo bodyWrap($out);
-
- 
 
 function logIn() {
   Global $encryptionPassword;
@@ -107,9 +96,6 @@ function loginForm() {
   $out .= "</form>\n";
   return $out;
 }
-
-
- 
 
 function newUserForm($error = NULL) {
 	$formData = array(
