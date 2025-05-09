@@ -15,14 +15,11 @@ function copy(id){
   }
 }
 
-
-
 function copyHack(value){ //such a hack!!
     var copyTextarea = document.createElement("textarea");
     copyTextarea.style.position = "fixed";
     copyTextarea.style.opacity = "0";
     copyTextarea.textContent = value;
- 
     document.body.appendChild(copyTextarea);
     copyTextarea.select();
     document.execCommand("copy");
