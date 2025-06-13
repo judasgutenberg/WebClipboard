@@ -291,7 +291,7 @@ function clips($userId) {
 		    $clip = $row["clip"];
 		    if($clip != "") {
 		      $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div>\n";
-		    }
+		    } 
 		    $out .= "<div  class='postClip'>\n";
 		    $out .= "<span id='clip" . $row["clipboard_item_id"] . "'>";
 		    
@@ -299,9 +299,12 @@ function clips($userId) {
 		    if(beginsWith($clip, "http")) {
 		      $out .= "<a id='href" . $row["clipboard_item_id"] . "' href='" . $clip . "'>";
 		      $endClip = "</a>";
-		    }
+		    } else {
+				$out .= "<tt>";
+				$endClip = "</tt>";
+			}
 		    $out .= str_replace("\n", "\n<br/>", $clip);
-		    $out .= $endClip;
+		    $out .=  $endClip;
 		    $out .= "</span>";
 			$out .= "<span style='display:none' id='originalclip_" . $row["clipboard_item_id"] . "'>";
 			$out .= $clip;
