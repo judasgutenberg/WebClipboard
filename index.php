@@ -6,7 +6,9 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 include("config.php");
+
 $conn = mysqli_connect($servername, $username, $password, $database);
 
 $mode = "";
@@ -14,13 +16,17 @@ $user = logIn();
 $out = "";
 $createUserErrors = NULL;
 //$formatedDateTime =  $date->format('H:i');
+
 if(gvfw("mode")) {
+ 
   $mode = gvfw('mode');
-	if ($mode == "logout") {
-		logOut();
-		header("Location: ?mode=login");
-		die();
-	}
+  if ($mode == "logout") {
+  	logOut();
+	header("Location: ?mode=login");
+	die();
+  }
+  
+	
 	if ($mode == "login") {
 		loginUser();
 	} else if (strtolower($mode) == "create user") {
@@ -41,6 +47,9 @@ if(gvfw("mode")) {
 	}
 }
 
+ 
+
+ 
 if($user) {
 	$out .= "<div class='loggedin'>You are logged in as <b>" . $user["email"] . "</b> <div class='basicbutton'><a href=\"?mode=logout\">logout</a></div></div>\n"; 
 	$out .= "<div>\n";
@@ -61,6 +70,8 @@ if($user) {
 }
 
 echo bodyWrap($out);
+
+ 
 
 function logIn() {
   Global $encryptionPassword;
@@ -96,6 +107,9 @@ function loginForm() {
   $out .= "</form>\n";
   return $out;
 }
+
+
+ 
 
 function newUserForm($error = NULL) {
 	$formData = array(
@@ -225,7 +239,8 @@ function createUser(){
   	$sql = "INSERT INTO user(email, password, created) VALUES ('" . $email . "','" .  mysqli_real_escape_string($conn, $encryptedPassword) . "','" .$formatedDateTime . "')"; 
 	//echo $sql;
 	$result = mysqli_query($conn, $sql);
-    	$id = mysqli_insert_id($conn);
+    $id = mysqli_insert_id($conn);
+	//die("*" . $id);
   	loginUser($_POST);
 	header("Location: ?");
   } else {
@@ -285,9 +300,12 @@ function clips($userId) {
 		      $out .= "<a id='href" . $row["clipboard_item_id"] . "' href='" . $clip . "'>";
 		      $endClip = "</a>";
 		    }
-		    $out .= $clip;
+		    $out .= str_replace("\n", "\n<br/>", $clip);
 		    $out .= $endClip;
 		    $out .= "</span>";
+			$out .= "<span style='display:none' id='originalclip_" . $row["clipboard_item_id"] . "'>";
+			$out .= $clip;
+			$out .= "</span>";
 		    if($row["file_name"] != "") {
 		      $extension = pathinfo($row["file_name"], PATHINFO_EXTENSION);
 		      $out .= "<div class='downloadLink'><a href='index.php?friendly=" . urlencode($row["file_name"]) . "&mode=download&path=" . urlencode("./downloads/" . $row["clipboard_item_id"] .  "." . $extension) . "'>" . $row["file_name"] . "</a>";
@@ -326,8 +344,7 @@ function clipTools($clipId) {
 }
 
 function gvfw($name, $fail = false){ //get value from wherever
-  $out = gvfa($name, $_REQUEST, $fail);
-  return $out;
+  return gvfa($name, $_REQUEST);
 }
 
 function gvfa($name, $source, $fail = false){ //get value from associative
@@ -338,7 +355,7 @@ function gvfa($name, $source, $fail = false){ //get value from associative
 }
 
 function beginsWith($strIn, $what) {
-	//Does $strIn begin with $what?
+//Does $strIn begin with $what?
 	if (substr($strIn,0, strlen($what))==$what){
 		return true;
 	}
@@ -346,7 +363,7 @@ function beginsWith($strIn, $what) {
 }
 
 function endsWith($strIn, $what) {
-	//Does $strIn end with $what?
+//Does $strIn end with $what?
 	if (substr($strIn, strlen($strIn)- strlen($what) , strlen($what))==$what) {
 		return true;
 	}
