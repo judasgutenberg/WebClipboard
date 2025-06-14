@@ -6,7 +6,7 @@ The clipboard also supports file uploads in addition to simple text and preserve
 
 Passwords are encrypted and new accounts are easily created (there is no email verification or easy UI to change your password!).
 
-None of this code has pretenses of being any more than it is. It's very straightforward and imperative.
+None of this code has pretenses of being any more than it is. It's very straightforward and imperative.  It has no dependencies and nothing needs compilation, because why would it?
 Note: like all applications that store user data, this system uses cookies.
 
 To use this, you will need to run the WebClipBoard.sql file on a MySQL server you control.  
