@@ -329,6 +329,7 @@ function bodyWrap($content) {
   $out = "";
   $out .= "<html>\n";
   $out .= "<head>\n";
+  $out .= '<link rel="icon" type="image/x-icon" href="./favicon.ico" />';
   $out .= "<script src='site.js'></script>\n";
   $out .= "<link rel='stylesheet' href='site.css'>\n";
   $out .= "<title>Web Clipboard</title>\n";
