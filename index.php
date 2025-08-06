@@ -33,7 +33,7 @@ if(gvfw("mode")) {
 		$createUserErrors = createUser();
 	} else if (strtolower($mode) == "save clip" && $user != false) {
 	
-		saveClip($user["user_id"], gvfw("clip", ""));
+		saveClip($user["user_id"], gvfw("clip", ""), gvfw("clipboard_item_type_id", ""));
 	
 	
 	} else if ($mode == "Save Clip" && $user != false) {
@@ -169,6 +169,7 @@ function clipForm() {
   $out .= "<div class='clipFormButtons'>\n";
   $out .= "<textarea name='clip' style='width:500px; height:100px'>\n";
   $out .= "</textarea>\n";
+  $out .= clipBoardDropdown();
   $out .= "</div>\n";
   $out .= "<div class='clipFormButtons'>\n";
   $out .= "<input type='file' id='clipfile' name='clipfile'>\n \n";
@@ -179,8 +180,48 @@ function clipForm() {
   return $out;
 }
 
+function clipBoardDropdown($default = 1) {
+  global $conn, $user;
+  $sql = "SELECT name as text, clipboard_item_type_id as value  FROM clipboard_item_type  WHERE user_id = " . intval($user["user_id"]) . " ORDER BY name asc";
+  $result = mysqli_query($conn, $sql);
+  if($result) {
+    $rows =  mysqli_fetch_all($result, MYSQLI_ASSOC);
+    return genericSelect("clipboard_item_type_id", "clipboard_item_type_id", $default, $rows, "", "");
+  }
+}
+
+function genericSelect($id, $name, $defaultValue, $data, $event = "", $handler= "") {
+	$out = "";
+	$out .= "<select name='" . $name. "' id='" . $id . "' " . $event . "=\"" . $handler . "\">\n";
+  $out .= "<option/>";
+  if($data && count($data)) {
+    foreach($data as $datum) {
+      $value = gvfa("value", $datum);
+      $text = gvfa("text", $datum);
+      if($value == ""  && $text == ""){ //if it's just a list of items, then each is both $value and $text
+        $value = $datum;
+        $text = $datum;
+      }
+      if(!$text) { //if the array is just a list of scalar values:
+        $value = $datum;
+        $text = $datum;
+      }
+      $selected = "";
+      if($defaultValue == $value) {
+        $selected = " selected='true'";
+      }
+      $out.= "<option " . $selected . " value=\"" . $value . "\">";
+      $out.= $text;
+      $out.= "</option>";
+    }
+    $out.= "</select>";
+    return $out;
+	}
+}
+
+
 function getUser($email) {
-  Global $conn;
+  global $conn;
   $sql = "SELECT * FROM `user` WHERE email = '" . mysqli_real_escape_string($conn, $email) . "'";
   //echo($sql);
   $result = mysqli_query($conn, $sql);
@@ -204,16 +245,16 @@ function loginUser($source = NULL) {
   $row = $result->fetch_assoc();
   if($row  && $row["email"] && $row["password"]) {
     $email = $row["email"];
-	$passwordHashed = $row["password"];
-	//for debugging:
-	//echo crypt($passwordIn, $encryptionPassword);
-	if (password_verify($passwordIn, $passwordHashed)) {
-		//echo "DDDADA";
-	    setcookie($cookiename, openssl_encrypt($email, "AES-128-CTR", $encryptionPassword), time() + (30 * 365 * 24 * 60 * 60));
-	    header('Location: '.$_SERVER['PHP_SELF']);
-	    //echo "LOGGED IN!!!" . $email ;
-	    die;
-	}
+    $passwordHashed = $row["password"];
+    //for debugging:
+    //echo crypt($passwordIn, $encryptionPassword);
+    if (password_verify($passwordIn, $passwordHashed)) {
+      //echo "DDDADA";
+        setcookie($cookiename, openssl_encrypt($email, "AES-128-CTR", $encryptionPassword), time() + (30 * 365 * 24 * 60 * 60));
+        header('Location: '.$_SERVER['PHP_SELF']);
+        //echo "LOGGED IN!!!" . $email ;
+        die;
+    }
   }
   return false;
 }
@@ -251,7 +292,7 @@ function createUser(){
  
 }
 
-function saveClip($userId, $clip){
+function saveClip($userId, $clip, $clipboard_item_type_id){
   Global $conn;
   
   $tempFile = $_FILES["clipfile"]["tmp_name"];
@@ -263,7 +304,8 @@ function saveClip($userId, $clip){
   }
   $date = new DateTime("now", new DateTimeZone('America/New_York'));//obviously, you would use your timezone, not necessarily mine
   $formatedDateTime =  $date->format('Y-m-d H:i:s'); 
-  $sql = "INSERT INTO clipboard_item(user_id, clip, file_name, created) VALUES (" . $userId . ",'" .  mysqli_real_escape_string($conn, $clip) . "','" . mysqli_real_escape_string($conn, $filename) . "','" .$formatedDateTime . "')"; 
+  
+  $sql = "INSERT INTO clipboard_item(user_id, type_id, clip, file_name, created) VALUES (" . $userId . "," .  intval($clipboard_item_type_id) . ",'" .  mysqli_real_escape_string($conn, $clip) . "','" . mysqli_real_escape_string($conn, $filename) . "','" .$formatedDateTime . "')"; 
   if($filename != "" || $clip != "") {
     $result = mysqli_query($conn, $sql);
     $id = mysqli_insert_id($conn);
