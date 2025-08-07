@@ -8,22 +8,25 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 include("config.php");
+normalizePostData();
 
 $conn = mysqli_connect($servername, $username, $password, $database);
 
 $mode = "";
+ 
 $user = logIn();
 $out = "";
 $createUserErrors = NULL;
 //$formatedDateTime =  $date->format('H:i');
-
+$typeId = gvfw("type_id");
+$action = gvfw("action");
 if(gvfw("mode")) {
  
   $mode = gvfw('mode');
   if ($mode == "logout") {
   	logOut();
-	header("Location: ?mode=login");
-	die();
+    header("Location: ?mode=login");
+    die();
   }
   
 	
@@ -40,23 +43,56 @@ if(gvfw("mode")) {
 	
 	
 	} else if ($mode == "download" && $user != false) {
+	
+
 		$path = gvfw("path");
 		$friendly = gvfw("friendly");
 		download($path, $friendly);
 		die();
+	} else if ($mode == "crud"  && $user) {
+ 
+    $table = gvfw("table");
+    $pk = gvfw("pk");
+    $pkValue = gvfw($pk);
+    $column = gvfw("column");
+    $value =  gvfw("value");
+    $hashedEntities = gvfw("hashed_entities");
+    //echo $column . $table .$pk . $pkValue  . "<BR>";
+    $calculatedHasedEntities = hash_hmac('sha256', $column . $table .$pk . $pkValue , $encryptionPassword);
+    //echo $hashedEntities . "  " .$calculatedHasedEntities;
+    //die();
+    if($hashedEntities == $calculatedHasedEntities) {
+      if($action == "update") {
+        $sql = "UPDATE " . $table . " SET " . $column . " = '" .$value . "' WHERE " . $pk . "='" .  $pkValue . "' AND user_id=" . $user["user_id"];
+      }
+      //die($sql);
+      $result = mysqli_query($conn, $sql);
+      //$row = $result->fetch_assoc();
+    
+    }
+    
+    
 	}
 }
 
  
-
- 
+function normalizePostData() {
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+    if (stripos($contentType, 'application/json') !== false) {
+        $raw = file_get_contents('php://input');
+        $json = json_decode($raw, true);
+        if (is_array($json)) {
+            $_POST = $json;
+        }
+    }
+} 
 if($user) {
 	$out .= "<div class='loggedin'>You are logged in as <b>" . $user["email"] . "</b> <div class='basicbutton'><a href=\"?mode=logout\">logout</a></div></div>\n"; 
 	$out .= "<div>\n";
-	$out .= clipForm();
+	$out .= clipForm($typeId);
 	$out .= "</div>\n";
 	$out .= "<div>\n";
-	$out .= clips($user["user_id"]);
+	$out .= clips($typeId);
 	$out .= "</div>\n";
 } else if ($mode == "startnewuser" || !is_null($createUserErrors)) {
 	$out .= "<div class='loggedin'>You are logged out. <div class='basicbutton'><a href=\"?mode=login\">log in</a></div></div>\n"; 
@@ -137,7 +173,6 @@ function newUserForm($error = NULL) {
   return genericForm($formData, "create user");
 }
 
-
 function genericForm($data, $submitLabel) { //$data also includes any errors
 	$out = "";
 	$out .= "<form method='post' name='genericform' id='genericform'>\n";
@@ -162,17 +197,19 @@ function genericForm($data, $submitLabel) { //$data also includes any errors
 	return $out;
 }
 
-function clipForm() {
+function clipForm($typeId) {
   $out = "";
   $out .= "<div>\n";
   $out .= "<form method='post' name='clipForm' id='clipForm'  enctype='multipart/form-data'>\n";
   $out .= "<div class='clipFormButtons'>\n";
-  $out .= "<textarea name='clip' style='width:500px; height:100px'>\n";
+  $out .= "<textarea name='clip' id='clip' style='width:500px; height:100px'>\n";
   $out .= "</textarea>\n";
-  $out .= clipBoardDropdown();
+  $onChange = "gotoSelectedClipType()";
+
   $out .= "</div>\n";
   $out .= "<div class='clipFormButtons'>\n";
   $out .= "<input type='file' id='clipfile' name='clipfile'>\n \n";
+  $out .= clipTypeDropdown($typeId, $onChange);
   $out .= "<input name='mode' value='Save Clip' type='submit'>\n";
   $out .= "</div>\n";
   $out .= "</form>\n";
@@ -180,19 +217,19 @@ function clipForm() {
   return $out;
 }
 
-function clipBoardDropdown($default = 1) {
+function clipTypeDropdown($default = "", $onChange = "", $jsId = "clipboard_item_type_id") {
   global $conn, $user;
   $sql = "SELECT name as text, clipboard_item_type_id as value  FROM clipboard_item_type  WHERE user_id = " . intval($user["user_id"]) . " ORDER BY name asc";
   $result = mysqli_query($conn, $sql);
   if($result) {
     $rows =  mysqli_fetch_all($result, MYSQLI_ASSOC);
-    return genericSelect("clipboard_item_type_id", "clipboard_item_type_id", $default, $rows, "", "");
+    return genericSelect($jsId, $jsId, $default, $rows, "onchange", $onChange);
   }
 }
 
-function genericSelect($id, $name, $defaultValue, $data, $event = "", $handler= "") {
+function genericSelect($id, $name, $defaultValue, $data, $event = "", $onChange) {
 	$out = "";
-	$out .= "<select name='" . $name. "' id='" . $id . "' " . $event . "=\"" . $handler . "\">\n";
+	$out .= "<select name='" . $name. "' id='" . $id . "' " . $event . "=\"" . $onChange . "\">\n";
   $out .= "<option/>";
   if($data && count($data)) {
     foreach($data as $datum) {
@@ -219,7 +256,6 @@ function genericSelect($id, $name, $defaultValue, $data, $event = "", $handler= 
 	}
 }
 
-
 function getUser($email) {
   global $conn;
   $sql = "SELECT * FROM `user` WHERE email = '" . mysqli_real_escape_string($conn, $email) . "'";
@@ -231,9 +267,10 @@ function getUser($email) {
 }
 
 function loginUser($source = NULL) {
-  Global $conn;
-  Global $encryptionPassword;
-  Global $cookiename;
+  global $conn;
+  global $encryptionPassword;
+  global $cookiename;
+  global $timezone;
   if($source == NULL) {
   	$source = $_REQUEST;
   }
@@ -261,11 +298,12 @@ function loginUser($source = NULL) {
 
 
 function createUser(){
-  Global $conn;
-  Global $encryptionPassword;
+  global $conn;
+  global $encryptionPassword;
+  global $timezone;
   $errors = NULL;
   $date = new DateTime("now", new DateTimeZone('America/New_York'));//obviously, you would use your timezone, not necessarily mine
-  $formatedDateTime =  $date->format('Y-m-d H:i:s'); 
+  $formatedDateTime =  $date->format($timezone); 
   $password = gvfa("password", $_POST);
   $password2 = gvfa("password2", $_POST);
   $email = gvfa("email", $_POST);
@@ -293,8 +331,7 @@ function createUser(){
 }
 
 function saveClip($userId, $clip, $clipboard_item_type_id){
-  Global $conn;
-  
+  global $conn, $timezone;
   $tempFile = $_FILES["clipfile"]["tmp_name"];
   $extension = "";
   $filename = "";
@@ -302,7 +339,7 @@ function saveClip($userId, $clip, $clipboard_item_type_id){
     $extension = pathinfo($_FILES["clipfile"]["name"], PATHINFO_EXTENSION);
     $filename = $_FILES["clipfile"]["name"];
   }
-  $date = new DateTime("now", new DateTimeZone('America/New_York'));//obviously, you would use your timezone, not necessarily mine
+  $date = new DateTime("now", new DateTimeZone($timezone));//obviously, you would use your timezone, not necessarily mine
   $formatedDateTime =  $date->format('Y-m-d H:i:s'); 
   
   $sql = "INSERT INTO clipboard_item(user_id, type_id, clip, file_name, created) VALUES (" . $userId . "," .  intval($clipboard_item_type_id) . ",'" .  mysqli_real_escape_string($conn, $clip) . "','" . mysqli_real_escape_string($conn, $filename) . "','" .$formatedDateTime . "')"; 
@@ -316,11 +353,15 @@ function saveClip($userId, $clip, $clipboard_item_type_id){
   }
 }
 
-function clips($userId) {
-  Global $conn;
-  Global $encryptionPassword;
- 
-  $sql = "SELECT * FROM `clipboard_item` WHERE user_id = " . $userId . " ORDER BY created DESC LIMIT 0,100";
+function clips($typeId) {
+  global $conn, $user;
+  global $encryptionPassword;
+  $userId  = $user["user_id"];
+  $sql = "SELECT * FROM `clipboard_item` WHERE user_id = " . $userId . " ";
+  if($typeId) {
+   $sql .= " AND type_id=" . intval($typeId); 
+  }
+  $sql .= " ORDER BY created DESC LIMIT 0,100";
   $out = "";
   $result = mysqli_query($conn, $sql);
   if($result) {
@@ -331,8 +372,14 @@ function clips($userId) {
 		    $row = $rows[$rowCount]; 
 		    $out .= "<div class='postRow'>\n<div class='postDate'>" . $row["created"] . "</div>\n";
 		    $clip = $row["clip"];
+        $table = "clipboard_item";
+        $pk = $table . "_id";
+        //$calculatedHasedEntities = hash_hmac('sha256', $column . $table .$pk . $pkValue , $encryptionPassword);
+		    $hashedEntities = hash_hmac('sha256', "type_id" . $table .$pk . $row[$pk] , $encryptionPassword);
+		    $out .=  clipTypeDropdown($row["type_id"], "changeClipType(" . $row["clipboard_item_id"] . ",'" . $hashedEntities . "','type_" . $row["clipboard_item_id"] . "')","type_" . $row["clipboard_item_id"]);
 		    if($clip != "") {
-		      $out .= "<div class='clipTools'>" . clipTools($row["clipboard_item_id"]) . "</div>\n";
+          
+		      $out .= "<div class='clipTools'>" .  clipTools($row["clipboard_item_id"])   . "</div>\n";
 		    } 
 		    $out .= "<div  class='postClip'>\n";
 		    $out .= "<span id='clip" . $row["clipboard_item_id"] . "'>";
@@ -348,6 +395,8 @@ function clips($userId) {
 		    $out .= str_replace("\n", "\n<br/>", $clip);
 		    $out .=  $endClip;
 		    $out .= "</span>";
+
+		  
 			$out .= "<span style='display:none' id='originalclip_" . $row["clipboard_item_id"] . "'>";
 			$out .= $clip;
 			$out .= "</span>";
@@ -356,7 +405,7 @@ function clips($userId) {
 		      $out .= "<div class='downloadLink'><a href='index.php?friendly=" . urlencode($row["file_name"]) . "&mode=download&path=" . urlencode("./downloads/" . $row["clipboard_item_id"] .  "." . $extension) . "'>" . $row["file_name"] . "</a>";
 		      $out .= "</div>";
 		    }
-		    
+ 
 		    
 		    
 		    $out .= "</div>";
@@ -390,7 +439,7 @@ function clipTools($clipId) {
 }
 
 function gvfw($name, $fail = false){ //get value from wherever
-  return gvfa($name, $_REQUEST);
+  return gvfa($name, $_REQUEST, gvfa($name, $_POST, $fail));
 }
 
 function gvfa($name, $source, $fail = false){ //get value from associative
