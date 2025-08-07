@@ -4,6 +4,7 @@ user_id INT NULL,
 clip TEXT NULL,
 file_extension VARCHAR(10) NULL,
 file_name VARCHAR(250) NULL,
+type_id INT NULL,
 created DATETIME ,
 altered DATETIME NULL
 );
