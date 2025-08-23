@@ -302,8 +302,9 @@ function createUser(){
   global $encryptionPassword;
   global $timezone;
   $errors = NULL;
-  $date = new DateTime("now", new DateTimeZone('America/New_York'));//obviously, you would use your timezone, not necessarily mine
-  $formatedDateTime =  $date->format($timezone); 
+  $date = new DateTime("now", new DateTimeZone($timezone));//obviously, you would use your timezone, not necessarily mine
+  $formatedDateTime =  $date->format("Y-m-d H:i:s"); 
+  //echo $formatedDateTime . "<BR>";
   $password = gvfa("password", $_POST);
   $password2 = gvfa("password2", $_POST);
   $email = gvfa("email", $_POST);
@@ -316,9 +317,14 @@ function createUser(){
   if(is_null($errors)) {
   	$encryptedPassword =  crypt($password, $encryptionPassword);
   	$sql = "INSERT INTO user(email, password, created) VALUES ('" . $email . "','" .  mysqli_real_escape_string($conn, $encryptedPassword) . "','" .$formatedDateTime . "')"; 
-	//echo $sql;
-	$result = mysqli_query($conn, $sql);
+    //echo $sql;
+    $result = mysqli_query($conn, $sql);
     $id = mysqli_insert_id($conn);
+    $error = mysqli_error($conn);
+    if($error) {
+      echo  $error;
+      return [$error];
+    }
 	//die("*" . $id);
   	loginUser($_POST);
 	header("Location: ?");
