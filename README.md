@@ -27,6 +27,8 @@ $database = "your_database";
 $password = "your_password";
 $encryptionPassword = "your_cookie_encryption_password";
 $cookiename = "your_cookie_name";
+$timezone = "America/New_York";
+ 
 
 ?&gt;
 </code>
